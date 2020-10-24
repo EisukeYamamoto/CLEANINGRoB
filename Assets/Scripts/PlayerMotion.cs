@@ -1,4 +1,8 @@
-﻿using System.Collections;
+/*
+プレイヤー関連の動作のスクリプト
+*/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,7 +11,6 @@ using UnityEngine.UI;
 public class PlayerMotion : MonoBehaviour
 {
   //十字キーのみで操作(上下矢印キー＝前後，左右矢印キー＝回転)
-  //CharacterControllerが必要
 
   public float speed = 6.0F;          //歩行速度
   public float jumpSpeed = 8.0F;      //ジャンプ力
@@ -19,47 +22,17 @@ public class PlayerMotion : MonoBehaviour
   private Vector3 moveDirection = Vector3.zero;
   private float h,v;
 
-  ///    ジャンプ入力フラグ
-  ///    ジャンプ入力が一度でもあったらON、着地したらOFF
-  private bool _jumpInput = false;
-
-  ///    ジャンプ処理中フラグ
-  ///    ジャンプ処理が開始されたらON、着地したらOFF
-  private bool _isJumping = false;
-
-
-  ///    接地してから何フレーム経過したか
-  ///    接地してない間は常にゼロとする
-  private int _isGround = 0;
-
-  ///    接地してない間、何フレーム経過したか
-  ///    接地している間は常にゼロとする
-  private int _notGround = 0;
-
-  ///    このフレーム数分接地していたらor接地していなかったら
-  ///    状態が変わったと認識する（ジャンプ開始したor着地した）
-  ///    接地してからキャラの状態が安定するまでに数フレーム用するため、
-  ///    キャラが安定する前に再ジャンプ入力を受け付けてしまうとバグる（ジャンプ出来なくなる）
-  ///    筆者PCでは 3 で安定するが、安全をとって今回は 5 とした
-  private const int _isGroundStateChange = 5;
-
-  ///    プレイヤーと地面の間の距離
-  ///    IsGround()が呼ばれるたびに更新される
-  [SerializeField] private float _groundDistance = 0f;
-  // [SerializeField] private float _floorDistance = 0f;
-
-  ///    _groundDistanceがこの値以下の場合接地していると判定する
-  private const float _groundDistanceLimit = 0.2f;
-
-  ///    判定元の原点が地面に極端に近いとrayがヒットしない場合があるので、
-  ///    オフセットを設けて確実にヒットするようにする
-  private Vector3 _raycastOffset  = new Vector3(0f, 0.05f, 0f);
-
-  ///    プレイヤーキャラから下向きに地面判定のrayを飛ばす時の上限距離
-  ///    ゲーム中でプレイヤーキャラと地面が最も離れると考えられる場面の距離に、
-  ///    マージンを多少付けた値にしておくのが良
-  ///    Mathf.Infinityを指定すれば無制限も可能だが重くなる可能性があるかも？
-  private const float _raycastSearchDistance = 100f;
+  // ジャンプ処理
+  private bool _jumpInput = false;  // ジャンプ入力が一度でもあったらON、着地したらOFF
+  private bool _isJumping = false;  // ジャンプ処理が開始されたらON、着地したらOFF
+  private int _isGround = 0;  // 接地してから何フレーム経過したか
+  private int _notGround = 0;  // 接地してない間、何フレーム経過したか
+  private const int _isGroundStateChange = 5;  // このフレーム数分接地していたらor接地していなかったら
+                                               // 状態が変わったと認識する（ジャンプ開始したor着地した）
+  [SerializeField] private float _groundDistance = 0f;  // プレイヤーと地面の間の距離
+  private const float _groundDistanceLimit = 0.2f;  // _groundDistanceがこの値以下の場合接地していると判定する
+  private Vector3 _raycastOffset  = new Vector3(0f, 0.05f, 0f);  // オフセット
+  private const float _raycastSearchDistance = 100f;  // 上限距離
 
   // パワーアップレベル
   public int PowerLevel = 0;
@@ -144,8 +117,6 @@ public class PlayerMotion : MonoBehaviour
             warptime = 0f;
           }
         }
-        // Debug.Log(_jumpInput);
-        // Debug.Log(EngineNow);
       }
   }//Update()
 
@@ -175,29 +146,24 @@ public class PlayerMotion : MonoBehaviour
   ///    ジャンプ入力チェック
   private bool JumpInput()
   {
-         // ジャンプ最速入力のテスト用にGetButton
-         //if (Input.GetButton("Jump")) return true;    // ジャンプキー押しっぱなしで連続ジャンプ
-         //if (Input.GetButtonDown("Jump")) return true;    // ジャンプキーが押された時だけジャンプにする時はこっち
-         if (isEngineGetFlag == false){
-           if (Input.GetKeyDown(KeyCode.Space)) {
-             //Debug.Log("jump");
-             return true;
-           }
-           return false;
-         }
-         else{
-           if (Input.GetKey(KeyCode.Space)) {
-             //Debug.Log("jump");
-             if(EngineNow > 0){
-               EngineNow -= EngineCost;
-             }
-             else{
-               EngineNow = 0;
-             }
-             return true;
-           }
-           return false;
-         }
+    if (isEngineGetFlag == false){
+      if (Input.GetKeyDown(KeyCode.Space)) {
+        return true;
+      }
+      return false;
+    }
+    else{
+      if (Input.GetKey(KeyCode.Space)) {
+        if(EngineNow > 0){
+          EngineNow -= EngineCost;
+        }
+        else{
+          EngineNow = 0;
+        }
+        return true;
+      }
+      return false;
+    }
   }
 
   ///    ジャンプのための上方向への加圧
@@ -218,10 +184,6 @@ public class PlayerMotion : MonoBehaviour
          RaycastHit hit;
          var layerMask = LayerMask.GetMask("Ground");
 
-         // プレイヤーの位置から下向きにRaycast
-         // レイヤーマスクでGroundを設定しているので、
-         // 地面のGameObjectにGroundのレイヤーを設定しておけば、
-         // Groundのレイヤーを持つGameObjectで一番近いものが一つだけヒットする
          var isGroundHit = Physics.Raycast(
                            transform.position + _raycastOffset,
                            transform.TransformDirection(Vector3.down),
@@ -233,16 +195,9 @@ public class PlayerMotion : MonoBehaviour
          if (isGroundHit) {
               _groundDistance = hit.distance;
          } else {
-              // ヒットしなかった場合はキャラの下方に地面が存在しないものとして扱う
               _groundDistance = float.MaxValue;
          }
-         // Debug.Log(_groundDistance);
 
-         // 地面とキャラの距離は環境によって様々で
-         // 完全にゼロにはならない時もあるため、
-         // ジャンプしていない時の値に多少のマージンをのせた
-         // 一定値以下を接地と判定する
-         // 通常あり得ないと思われるが、オーバーフローされると再度アクションが実行されてしまうので、越えたところで止める
          if (_groundDistance < _groundDistanceLimit) {
               if (_isGround <= _isGroundStateChange) {
                    _isGround += 1;
@@ -263,29 +218,24 @@ public class PlayerMotion : MonoBehaviour
               }
          }
 
-         // 接地後またはジャンプ後、特定フレーム分状態の変化が無ければ、
-         // 状態が安定したものとして接地処理またはジャンプ処理を行う
          if (_isGroundStateChange == _isGround && _notGround == 0) {
               if (landingAction != null){
                    landingAction();
-
-                   //Debug.Log("landing");
               }
          } else {
               if (_isGroundStateChange == _notGround && _isGround == 0) {
                    if (takeOffAction != null){
                         takeOffAction();
-                        //Debug.Log("takeOFF");
                    }
               }
          }
     }
 
+    // 当たり判定
     void OnCollisionEnter(Collision collision) {
       if (gamemanager.game_stop_flg == false){
-        // Debug.Log(collision.gameObject.tag);
         switch(collision.gameObject.tag){
-          case "Battery":
+          case "Battery":  // 万有引力のパワーを上げる
              if (isBatteryGetFlag == false){
                isBatteryGetFlag = true;
                Destroy(collision.gameObject);
@@ -295,43 +245,42 @@ public class PlayerMotion : MonoBehaviour
                }
              }
              break;
-          case "Engine":
+          case "Engine":  //  ホバーが使用可能になる
              isEngineGetFlag = true;
              EngineNow = EngineLimit;
              Destroy(collision.gameObject);
              audioSource.PlayOneShot(Engine_se);
              break;
-          case "Paper_1":
+          case "Paper_1":  // スコア 10点
              score += 10;
              Destroy(collision.gameObject);
              audioSource.PlayOneShot(paper_se);
              pm.paper1_num -= 1;
              break;
-          case "Paper_2":
+          case "Paper_2":  // スコア 20点
              score += 20;
              Destroy(collision.gameObject);
              audioSource.PlayOneShot(paper_se);
              pm.paper2_num -= 1;
              break;
-          case "Paper_3":
+          case "Paper_3":  // スコア 30点
              score += 30;
              Destroy(collision.gameObject);
              audioSource.PlayOneShot(paper_se);
              pm.paper3_num -= 1;
              break;
-          case "Ball":
+          case "Ball":  // スコア 100点
              score += 100;
              Destroy(collision.gameObject);
              audioSource.PlayOneShot(paper_se);
              pm.ball_num -= 1;
              break;
-          case "Warp":
+          case "Warp":  // ワープ処理
              if (collision.gameObject.name == "Warp1"){
                if (isWarpFlag){
                  audioSource.PlayOneShot(Warp_se);
                  this.transform.position = Warp2.transform.position;
                  this.transform.rotation = Quaternion.Euler(0, 180, 0);
-                 //_rigidBody.AddForce(this.transform.forward * 10f);
                  isWarpFlag = false;
                }
              }
@@ -340,7 +289,6 @@ public class PlayerMotion : MonoBehaviour
                  audioSource.PlayOneShot(Warp_se);
                  this.transform.position = Warp1.transform.position;
                  this.transform.rotation = Quaternion.Euler(0, -90f, 0);
-                 //_rigidBody.AddForce(this.transform.forward * 10f);
                  isWarpFlag = false;
                }
              }

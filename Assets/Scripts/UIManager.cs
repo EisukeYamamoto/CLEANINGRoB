@@ -1,3 +1,7 @@
+/*
+UIを制御するスクリプト
+*/
+
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -173,7 +177,6 @@ public class UIManager : MonoBehaviour
         readyGoText.text = "GO!!";
         // SE
         audioSource.PlayOneShot(go_se);
-        // Instantiate(Audio_Go, transform.position, transform.rotation);
 
         //プレイヤーを移動可能にさせる
         gameManager.game_stop_flg = false;

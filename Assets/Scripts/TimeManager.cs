@@ -1,4 +1,8 @@
-﻿using System.Collections;
+/*
+制限時間の制御のスクリプト 
+*/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,7 +29,6 @@ public class TimeManager : MonoBehaviour
 
         if(countdown <= 0.0f){
           countdown = 0.0f;
-          // gamemanager.GameOver();
         }
       }
     }

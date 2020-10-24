@@ -1,4 +1,6 @@
-// https://unity.moon-bear.com/
+/*
+フェードイン、フェードアウトを行うスクリプト 
+*/
 
 using System.Collections;
 using System.Collections.Generic;

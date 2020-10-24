@@ -1,4 +1,8 @@
-﻿using System.Collections;
+/*
+スコアの計算、オンラインボードへスコアを送信する処理
+*/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -76,7 +80,6 @@ public class ResultManager : MonoBehaviour
         }
         bonus = Mathf.FloorToInt(countdown * 10);
         BonusText.text = "+" + bonus.ToString();
-        // Instantiate(Audio_Go, transform.position, transform.rotation);
 
         yield return new WaitForSeconds(1.5f);
 

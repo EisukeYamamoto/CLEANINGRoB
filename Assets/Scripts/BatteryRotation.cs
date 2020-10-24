@@ -1,4 +1,8 @@
-﻿using System.Collections;
+/*
+オブジェクトを回転させるスクリプト 
+*/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

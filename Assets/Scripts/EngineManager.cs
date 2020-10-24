@@ -1,11 +1,14 @@
-﻿using System.Collections;
+/*
+ホバーエンジンをランダムに出現させるスクリプト 
+*/
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EngineManager : MonoBehaviour
 {
   [SerializeField] GameObject Engine_Prefab = default;
-  // [SerializeField] PlayerMotion player = default;
   [SerializeField] Transform Field = default;
   [SerializeField] int Engine_num_limit = 3;
 
